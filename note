@@ -1,0 +1,275 @@
+//////////////////////////////////////////////////////////////////////
+// "data"=>EmployeeResource::collection($employees->keyBy->id),
+// "data"=>$employees,
+
+$rules = [
+       'page' => 'required|numeric',
+       'kodesupplier'=>"required",
+       'date_from'=>['required','date_format:"Y-m-d"'],
+       'date_to'=>['required','date_format:"Y-m-d"'],
+    ];
+
+    $messages=[
+       'page.required' => 'Mohon Refresh Browser Anda',
+       'page.numeric' => 'Mohon Refresh Browser Anda',
+
+       'kodesupplier.required' => 'Mohon Refresh Browser Anda',
+
+       'date_from.required' => 'Tanggal (Dari) Harus diisi',
+       'date_from.date_format' => 'Format Tanggal (Dari) Salah',
+       'date_from.before' => 'Tanggal (Dari) Harus Sebelum Tanggal (Sampai)',
+
+       'date_to.required' => 'Tanggal (Sampai) Harus Diisi',
+       'date_to.date_format' => 'Format Tanggal (Sampai) Salah',
+       'date_to.after' => 'Tanggal (Sampai) Harus Sesudah Tanggal (Dari)',
+    ];
+
+    $validator = \Validator::make($request->all(),$rules,$messages);
+
+    if ($validator->fails()) {
+       return response()->json([
+          "status"=>'Gagal',
+          "field"=>$validator->messages(),
+          "message"=>$validator->messages()->all(),
+          // "errors"=>$validator->errors()->all(),
+          // "error"=>$validator->errors(),
+       ],400);
+    }
+
+
+
+//////////////////////////////////////////////////////////////////////
+$rules = [
+   'id_number' => 'required|numeric',
+   'name'=>"required",
+   'birth_date'=>"required|date_format:format",
+   'alamat'=>"required",
+   'photo'=>"required|image|mimes:jpeg|max:2048",
+];
+
+$messages=[
+   'id_number.required' => 'Nomor Induk Kependudukan tidak boleh kosong',
+   'id_number.numeric' => 'Nomor Induk Kependudukan hanya boleh berisi angka',
+
+   'name.required' => 'Nama tidak boleh kosong',
+
+   'birth_date.required' => 'Umur tidak boleh kosong',
+   'birth_date.date_format' => 'Format Tanggal Lahir Salah',
+
+   'alamat.required' => 'Alamat tidak boleh kosong',
+
+   'photo.required' => 'Pilih foto terlebih dahulu',
+   'photo.max' => 'ukuran foto yang di terima maksimal :max kb.',
+   'photo.mimes' => 'Format foto harus :values.',
+];
+
+$validator = \Validator::make($request->all(),$rules,$messages);
+
+if ($validator->fails()) {
+  throw new ValidationException($validator);
+}
+//////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+    $in_data=(object)[];
+    $in_data->email=strtolower(trim($email));
+    $in_data->password=bcrypt($password);
+    // $in_data->api_token=str_random(255);
+    $in_data->email_token=str_random(5).base64_encode(strtolower($request->email));
+    //////////////////////////////////////////////////////////////////////
+
+    // $user=DB::table("users")->insertGetId($in_data);
+    //////////////////////////////////////////////////////////////////////
+
+
+
+    $user = User::where("id",auth()->id())->first();
+    //         $validator = \Validator::make($request->all(), [
+    //             'avatar'=>'required|mimes:jpg,jpeg|max:5000',
+    //             'avatar_client_x'=>'required',
+    //             'avatar_client_y'=>'required',
+    //             'avatar_width'=>'required',
+    //             'avatar_height'=>'required',
+    //             'avatar_top'=>'required',
+    //             'avatar_left'=>'required',
+    //             'avatar_frame'=>'required',
+    //         ]);
+    //
+    //         if ($validator->fails()) {
+    //             return back()->withErrors($validator)->withInput();
+    //         }
+    //
+    //         $new_avatar_file = $request->file('avatar');
+    //         $folder_name = $user->uuid;
+    //
+    //         if($new_avatar_file != null){
+    //             $new_avatar_ext = $new_avatar_file->extension();
+    //
+    //             if($new_avatar_ext != 'png' && $new_avatar_ext != 'jpg' && $new_avatar_ext != 'jpeg' && $new_avatar_ext != 'bmp'){
+    //                 throw new EzException(["message"=>"File Avatar yang diupload harus berupa 'png/jpg/jpeg/bmp'."]);
+    //             }
+    //             $new_avatar_file_name = md5(preg_replace('/( |-|:)/','',date("Y-m-d H:i:s"))).'.'.$new_avatar_ext;
+    //
+    //             if(!File::exists(public_path()."/img/user/$folder_name")) {
+    //                 File::makeDirectory(public_path()."/img/user/$folder_name",0777,true);
+    //
+    //             }
+    //             if(File::exists(public_path().$user->official_avatar) && $user->official_avatar != null){
+    //                 unlink(public_path().$user->official_avatar);
+    //             }
+    //             $avatar_upload = Image::make($request->file('avatar'));
+    //             $avatar_height = $avatar_upload->height();
+    //             $avatar_width = $avatar_upload->width();
+    //             $rasio = $avatar_width / (float) $request->avatar_width;
+    //             $a_w = (int) ($rasio * (float) $request->avatar_frame);
+    //             $a_h = (int) ($a_w);
+    //             $a_x = (int) ($rasio * (float) $request->avatar_left);
+    //             $a_y = (int) ($rasio * (float) $request->avatar_top);
+    //             // throw new EzException($rasio);
+    //             // throw new EzException($a_w."x".$a_x."x".$a_h."x".$a_y);
+    //
+    //             $new_avatar_upload = Image::make($new_avatar_file)
+    //             ->crop($a_w, $a_h, $a_x * -1, $a_y * -1)
+    //             ->save(public_path()."/img/user/$folder_name/$new_avatar_file_name");
+    //
+    //             $new_avatar = "/img/user/{$folder_name}/{$new_avatar_file_name}";
+    //         } else {
+    //             $new_avatar = null;
+    //         }
+    //
+    //         $new_avatar_profile_user = [
+    //             'avatar' => $new_avatar,
+    //             'official_avatar' => $new_avatar,
+    //         ];
+    //
+    //         $user->update($new_avatar_profile_user);
+    //
+    //         return response()->json([
+    //             "username" => $user->username,
+    //         ], 200);
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+    class Transaction extends Model {
+    protected $fillable = ['amount', 'typology'];
+}
+
+$data = $request->all();
+$transaction = new Transaction($data);
+
+$result = $transaction->isValid();
+
+
+$data = $request->all();
+$transaction = new Transaction();
+$transaction->fill($data);
+
+$result = $transaction->isValid();
+
+////////////////////////////////////////////////////////////////////////////////////////
+composer require intervention/image
+use Intervention\Image\Facades\Image as Image;
+config/app.php
+'Image' => Intervention\Image\Facades\Image::class
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+//     public function cetak(Request $request)
+//     {
+//       $employees = Employee::all();
+//       $filename = "tx-".date("YmdHis");
+//       $baseing = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,';
+//       // Excel::store( new EmployeeReport($employees), $filename.'.xlsx');
+//       // $file=Storage::get($filename.'.xlsx');
+//       // if ($file) {
+//       //   // $fileLink = base64_encode($file);
+//       //   $fileLink ='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,'.base64_encode($file);
+//       //   Storage::delete($filename.'.xlsx');
+//       // }
+//      //  $headers = [
+//      //     'Content-type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+//      //     'Content-Disposition' => 'attachment; filename="download.xlsx"',
+//      // ];
+//      //
+//      // return $baseing.base64_encode(Excel::raw(new EmployeeReport($employees), \Maatwebsite\Excel\Excel::XLSX));
+//       // return [
+//       //   "dwn"=>'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,'.base64_encode(Excel::download( new EmployeeReport($employees), 'filename.xlsx')),
+//       //   "store"=>$fileLink
+//       // ];
+//       // return 'data:application/vnd.ms-excel;base64,'.base64_encode(Excel::download( new EmployeeReport($employees), 'filename.xlsx', \Maatwebsite\Excel\Excel::XLSX, [ 'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', ] ));
+//
+//     }
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+
+<?php
+
+namespace App\Model;
+
+use Illuminate\Database\Eloquent\Model;
+use Date;
+class PurchaseOrder extends Model
+{
+  protected $fillable = [
+    'email', 'password','username',
+    'full_name','city_id',
+    'created_at','updated_at'
+  ];
+
+  /**
+   * The attributes that should be hidden for arrays.
+   *
+   * @var array
+   */
+  protected $hidden = [
+      'password', 'api_token',
+  ];
+
+  public function seller()
+  {
+    return $this->belongsTo(Seller::class);
+  }
+
+  public function purchase_order_details()
+  {
+    return $this->hasMany(PurchaseOrderDetail::class);
+  }
+
+
+  public function scopeAvailable($query)
+  {
+    $now = date("y-m-d H:i:s");
+    return $query->whereDate('open_date',"<",$now)->whereDate('close_date',">",$now)
+    ->where("is_open",true)
+    ->whereHas('purchase_order_details',function($query){
+      $query->where("is_open",true);
+    });
+  }
+
+  public function scopeSellerAvailable($query,$seller_id)
+  {
+    return $query->where("seller_id",$seller_id)->available();
+  }
+
+  public function scopeProdukAvailable($query,$seller_id,$product_id)
+  {
+    $now = date("y-m-d H:i:s");
+    return $query->where("seller_id",$seller_id)
+    ->whereDate('open_date',"<",$now)
+    ->whereDate('close_date',">",$now)
+    ->where("is_open",true)
+    ->whereHas('purchase_order_details',function($query)use($product_id){
+      $query->where("product_id",$product_id);
+      $query->where("is_open",true);
+    });
+  }
+}
+////////////////////////////////////////////////////////////////////////////////////////
